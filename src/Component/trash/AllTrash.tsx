@@ -49,7 +49,7 @@ function Alltrash() {
 
   return (
     <>
-      <div className="flex flex-col bg-[#1C1C1C] w-1/5 min-w-[25vh] p-4">
+      <div className="flex flex-col bg-[#1C1C1C] w-1/5 min-w-[25vh] p-3">
         <h2 className="text-white text-lg font-semibold">Trashed</h2>
 
         <div className="flex flex-col h-[90vh] gap-4 overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-400">
