@@ -4,7 +4,7 @@ import folderimage from "../../assets/folder.svg";
 import Option from "./option";
 import axios from "axios";
 import { RenderContext } from "../../RenderContext";
-
+import { useNavigate } from "react-router-dom";
 interface CardProps {
   id: string;
   title: string;
@@ -15,7 +15,10 @@ interface CardProps {
   namefolder: string;
   folderid: string;
 }
-
+interface datatypes {
+  id: string;
+  name: string;
+}
 function ContentCard({
   id,
   title,
@@ -32,16 +35,20 @@ function ContentCard({
   const [editModeContent, setEditModeContent] = useState<boolean>(false);
   const [titleTimer, setTitleTimer] = useState<number | null>(null);
   const [contentTimer, setContentTimer] = useState<number | null>(null);
-
+  const [selectedFolder, setSelectedFolder] = useState<string>(namefolder);
   const context = useContext(RenderContext);
   const { isRender, setIsRender } = context;
+  const [folders, setFolders] = useState<datatypes[]>([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setEditVal(title);
     setEditContent(content);
     setEditModeTitle(false);
     setEditModeContent(false);
-  }, [id, title, content]);
+    setSelectedFolder(namefolder);
+  }, [id, title, content, namefolder]);
 
   const handleTitleChange = (newTitle: string) => {
     setEditVal(newTitle);
@@ -58,7 +65,7 @@ function ContentCard({
           console.error("Error updating title:", error);
         }
       }
-    }, 2000); 
+    }, 2000);
 
     setTitleTimer(timer);
   };
@@ -77,10 +84,42 @@ function ContentCard({
           console.error("Error updating content:", error);
         }
       }
-    }, 2000); 
+    }, 2000);
 
     setContentTimer(timer);
   };
+
+  const handleFolderChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFolderName = e.target.value;
+    setSelectedFolder(newFolderName);
+
+    try {
+
+      const selectedFolder = folders.find((folder) => folder.name === newFolderName);
+      if (selectedFolder) {
+        await axios.patch(`https://nowted-server.remotestate.com/notes/${id}`, {
+          folderId: selectedFolder.id,
+        });
+        navigate(`/${newFolderName}/${selectedFolder.id}`)
+        // setIsRender(!isRender); 
+      }
+    } catch (error) {
+      console.error("Error updating folder:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchfolders = async () => {
+      try {
+        const response = await axios.get("https://nowted-server.remotestate.com/folders");
+        setFolders(response.data.folders);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchfolders();
+  }, []);
 
   return (
     <div className="p-12 flex flex-col gap-4">
@@ -129,23 +168,24 @@ function ContentCard({
       <div className="text-sm flex flex-row gap-5 items-center">
         <img src={folderimage} className="pb-1" />
         <p>Folder :</p>
-        <p className="font-bold underline">{namefolder}</p>
+
+        <select name="folder" id="folder" 
+          className="bg-newgray " value={selectedFolder} onChange={handleFolderChange} >
+          {folders.map((folder) => (
+            <option key={folder.id} value={folder.name}>
+              {folder.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>
-      {/* <button 
-          onClick={() => setEditModeContent(!editModeContent)}
-          className="self-start px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-        >
-          {editModeContent ? "Save" : "Edit"}
-        </button> */}
         {editModeContent ? (
           <textarea
             value={editContent ?? ""}
             onChange={(e) => handleContentChange(e.target.value)}
             onBlur={() => setEditModeContent(false)}
-            className="cursor-pointer  break-words whitespace-pre-wrap overflow-y-hidden
-            outline-none w-full h-screen bg-gray-950 caret-white"
+            className="cursor-pointer break-words whitespace-pre-wrap overflow-y-hidden outline-none w-full h-screen bg-gray-950 caret-white"
             autoFocus
           />
         ) : (
