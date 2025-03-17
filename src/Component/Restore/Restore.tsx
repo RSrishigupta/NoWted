@@ -66,7 +66,7 @@ function Restore() {
                     button and it will be added back to your list. It's that simple.
                 </p>
             </div>
-            <NavLink to={`/${contentdata?.folder.name}/${contentdata?.folder.id}/Notes/${contentdata?.id}`} onClick={restoreNote} className="border py-2 px-4 rounded-lg hover:bg-newgray" > Restore     </NavLink>
+            <NavLink to={`/${contentdata?.folder.name}/${contentdata?.folder.id}/Notes/${contentdata?.id}`} onClick={restoreNote} className="border py-2 px-4 rounded-lg hover:bg-newgray" > Restore</NavLink>
         </div>
     );
 }

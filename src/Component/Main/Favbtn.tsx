@@ -16,7 +16,7 @@ function Favbtn({ isFav, id, closeMenu, folderid, foldername }: FavbtnProps) {
     const [isfav, setIsfav] = useState(isFav);
     const { folderId } = useParams();
     const context = useContext(RenderContext);
-    const { setMainRender,setIsRender } = context;
+    const { setMainRender, setIsRender } = context;
 
     const isFavchange = async (): Promise<void> => {
         const newFavState = !isfav;
@@ -25,8 +25,6 @@ function Favbtn({ isFav, id, closeMenu, folderid, foldername }: FavbtnProps) {
             await axios.patch(
                 `https://nowted-server.remotestate.com/notes/${id}`,
                 { isFavorite: newFavState },
-                { headers: { "Content-Type": "application/json" } }
-
             );
 
             setMainRender(true);

@@ -185,7 +185,8 @@ function ContentCard({
             value={editContent ?? ""}
             onChange={(e) => handleContentChange(e.target.value)}
             onBlur={() => setEditModeContent(false)}
-            className="cursor-pointer break-words whitespace-pre-wrap overflow-y-hidden outline-none w-full h-screen bg-gray-950 caret-white"
+            className="cursor-pointer break-words whitespace-pre-wrap overflow-y-hidden 
+                       outline-none w-full h-auto min-h-[68vh] bg-gray-950 caret-white"
             autoFocus
           />
         ) : (

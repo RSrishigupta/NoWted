@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
 interface CardProps {
@@ -7,12 +8,23 @@ interface CardProps {
   lastdate: string;
   folderId: string;
   folderName: string;
+  Mode: string;
 }
 
-function Card({ title, text, lastdate, id, folderId, folderName }: CardProps) {
+function Card({ title, text, lastdate, id, folderId, folderName, Mode }: CardProps) {
+  const [Url, setUrl] = useState("");
+  useEffect(() => {
+    if (Mode === "Favorites" || Mode === "Archive" || Mode === "Trash") {
+      setUrl(`${Mode}/${title}/${id}`);      
+    } else {
+      setUrl(`${folderName}/${folderId}/Notes/${id}`);
+    }
+  }, [Mode, folderName, folderId,id,title]); 
+ 
+
   return (
     <NavLink
-      to={`/${folderName}/${folderId}/Notes/${id}`}
+      to={`/${Url}`}
       className={({ isActive }) =>
         `bg-newgray rounded-sm p-3 text-white cursor-pointer text-left hover:bg-blue-800 ${
           isActive ? "border-2 border-blue-500" : ""

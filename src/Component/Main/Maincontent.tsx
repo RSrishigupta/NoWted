@@ -53,7 +53,7 @@ function Main() {
                 
                 contentdata.deletedAt?<Restore/>:
 
-                <div className="w-3/5 h-screen overflow-x-hidden overflow-y-scroll">
+                <div className="w-3/5 h-screen overflow-x-hidden overflow-y-auto">
                     <ContentCard
                         id={contentdata.id}
                         namefolder={contentdata.folder.name}
