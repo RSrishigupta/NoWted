@@ -19,18 +19,17 @@ interface DataTypes {
 function Middlecomponent() {
     const URL = useLocation().pathname.split("/").filter(Boolean);
     const Mode = URL.length > 0 ? decodeURIComponent(URL[0]) : "";
-
     const [notes, setNotes] = useState<DataTypes[]>([]);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
 
+    const [loading, setLoading] = useState(false);
+    
     const { folderId } = useParams<{ folderId?: string }>();
     const { isRender, setIsRender } = useContext(RenderContext);
 
-    const fetchData = useCallback(async (pageNumber: number) => {
-        if (!hasMore) return;
-
+    const fetchData = useCallback(async (pageNumber = 1) => {
         try {
+            setLoading(true);
             let data: DataTypes[] = [];
             switch (Mode) {
                 case "Favorites":
@@ -46,32 +45,33 @@ function Middlecomponent() {
                     data = await fetchAllNotes(folderId, pageNumber);
             }
 
-            if (data.length > 0) {
-                setNotes((prevNotes) => [...prevNotes, ...data]);
-                setPage(pageNumber + 1);
-                if (isRender) {
-                    setIsRender(false)
-                }
-            } else {
-                setHasMore(false);
+            setNotes(prevNotes => pageNumber === 1 ? data : [...prevNotes, ...data]);
+            if (isRender) {
+                setIsRender(false);
             }
         } catch (error) {
             console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
         }
-    }, [Mode, folderId, hasMore,isRender,setIsRender]);
+    }, [Mode, folderId, isRender, setIsRender]);
 
     useEffect(() => {
         setNotes([]);
         setPage(1);
-        setHasMore(true);
         fetchData(1);
-    }, [Mode, folderId, isRender, fetchData]);
+    }, [Mode, folderId, fetchData]);
+
+    const loadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchData(nextPage);
+    };
 
     return (
-        <div className="flex flex-col gap-2 bg-[#1C1C1C] w-1/5 min-w-[25vh] p-3">
+        <div className="flex flex-col gap-2 bg-[#1C1C1C] w-1/5 min-w-[25vh] p-3 relative h-screen">
             <h1 className="text-2xl">{Mode}</h1>
-
-            <div className="flex pr-1 flex-col h-[87vh] gap-4 overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-500">
+            <div className="flex pr-1 flex-col h-[90vh] gap-4 overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-500">
                 {notes.length > 0 ? (
                     notes.map((note) => (
                         <Card
@@ -90,12 +90,14 @@ function Middlecomponent() {
                 )}
             </div>
 
-            {hasMore && (
+            {notes.length > 9 && (
                 <button
-                    onClick={() => fetchData(page)}
-                    className="bg-blue-950 text-white rounded-md w-full hover:bg-blue-700 disabled:bg-gray-500"
+                    onClick={loadMore}
+                    disabled={loading}
+                    className="absolute bottom-1 left-1/2 transform -translate-x-1/2 
+                    bg-blue-950 text-white   w-19/20 rounded hover:bg-blue-600 disabled:bg-gray-400"
                 >
-                    Load More
+                    {loading ? "Loading..." : "Load More"}
                 </button>
             )}
         </div>
